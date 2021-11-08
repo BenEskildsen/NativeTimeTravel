@@ -1,0 +1,8 @@
+{
+  presets: ["@babel/flow"],
+  plugins: [
+  ],
+  ignore: [
+    "./js/levels",
+  ],
+}
