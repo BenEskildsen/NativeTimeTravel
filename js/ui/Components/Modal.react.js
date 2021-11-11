@@ -36,7 +36,7 @@ function Modal(props: Props): React.Node {
       key={"b_" + b.label}
       disabled={!!b.disabled}
       label={b.label} onClick={b.onClick}
-      style={{width: 200, marginLeft: width / 2 - 103}}
+      style={{width: 200, marginLeft: width / 2 - 103, marginBottom: 4}}
     />);
   });
 
@@ -57,7 +57,7 @@ function Modal(props: Props): React.Node {
     for (let i = 0; i < body.length; i++) {
       bodyHTML.push(
         <Text
-          style={{visibility: i < bodyIndex ? 'inherit' : 'hidden'}}
+          style={{opacity: i < bodyIndex ? 1 : 0}}
           key={"body_letter_" + i}
         >
           {body[i]}
@@ -89,9 +89,10 @@ function Modal(props: Props): React.Node {
       <Text style={{fontFamily: config.font}}>{title}</Text>
       {bodyHTML}
       <View
-        style={{
-
-        }}
+        style={splash ? {
+          position: 'absolute',
+          bottom: '4px'
+        } : {}}
       >
         {buttonHTML}
       </View>

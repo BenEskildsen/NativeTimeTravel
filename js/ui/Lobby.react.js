@@ -65,7 +65,7 @@ const Lobby = (props) => {
           dispatch({
             type: 'SET_MODAL',
             modal: (<Modal
-              title={<Text style={{fontWeight: 900}}>The Clock That Went Backwards</Text>}
+              title={<Text style={{fontWeight: '900'}}>The Clock That Went Backwards</Text>}
               body={'... How did I get in this strange mansion?' +
                 ' ... WHEN did I get here? ... And how do I get out?'
               }
@@ -85,7 +85,7 @@ const Lobby = (props) => {
       </View>
       {levelNum == 0 ? null : resetButton}
       <AudioWidget
-        audioFiles={config.audioFiles}
+        audioFiles={config.menuAudioFiles}
         isShuffled={false}
         isMuted={isMuted}
         setIsMuted={() => {

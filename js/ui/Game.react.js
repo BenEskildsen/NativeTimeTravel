@@ -68,6 +68,7 @@ function Game(props: Props): React.Node {
         isTimeReversed={game.isTimeReversed}
         numReversals={game.numReversals}
         level={game.level}
+        soundEffect={game.soundEffect}
       />
       <Controls
         dispatch={dispatch}
@@ -185,7 +186,7 @@ const RenderSprites = ({game}) => {
       y: Math.floor(button.doorID / 3),
       width: 4,
       height: 3,
-      size: size * 0.9,
+      size: size * 0.7,
     };
     let yOffset = 0;
     if (button.pressed) {
@@ -194,15 +195,18 @@ const RenderSprites = ({game}) => {
       if (sheet.y == 2) yOffset = -0.1;
     }
     const grid = {
-      x: button.position.x * 10/9,
-      y: (button.position.y * 10/9) + yOffset,
+      x: button.position.x * 10/7 + 0.2,
+      y: (button.position.y * 10/7) + yOffset + 0.2,
       width: 1, height: button.pressed ? 0.9 : 1,
-      size: size * 0.9,
+      size: size * 0.7,
     };
 
     sprites.push(<Sprite
       key={"entityID_" + entityID}
-      src={require('../../assets/buttonSheet2.png')}
+      src={button.pressed
+        ? require('../../assets/pressedSheet2.png')
+        : require('../../assets/buttonSheet2.png')
+      }
       grid={grid}
       sheet={sheet}
     />);
@@ -435,8 +439,12 @@ const Sprite = (props) => {
     <View
       style={{
         position: 'absolute',
-        top: grid.y * grid.size,
-        left: grid.x * grid.size,
+        top: (grid.y - 1) * grid.size,
+        left: (grid.x - 1)* grid.size,
+        padding: grid.size,
+        ...imgStyle,
+        width: grid.width * grid.size * 3,
+        height: grid.height * grid.size * 3,
       }}
     >
       <View
@@ -447,7 +455,6 @@ const Sprite = (props) => {
           width: grid.width * grid.size,
           height: grid.height * grid.size,
           border: props.border ? '1px solid red': 'none',
-          ...imgStyle,
         }}
       >
         <Image

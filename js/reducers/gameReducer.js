@@ -53,7 +53,9 @@ const gameReducer = (game: GameState, action: Action) => {
       for (const id in game.AGENT) {
         if (i == 0) {
           game.AGENT[id].isPlayerAgent = true;
+          game.AGENT[id].facing = 'down';
           game.AGENT[id].history = [game.AGENT[id].history[0]];
+
           i++;
           continue;
         }

@@ -52,7 +52,6 @@ const rootReducer = (state: State, action: Action): State => {
       return {...state, resetCampaign: true};
     case 'SET_MODAL':
     case 'DISMISS_MODAL':
-      console.log("Set modal", action.modal);
       return modalReducer(state, action);
     case 'SET_HOTKEY':
     case 'SET_KEY_PRESS': {

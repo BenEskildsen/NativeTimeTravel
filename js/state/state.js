@@ -65,8 +65,20 @@ const initMoveAttempts = () => {
   };
 };
 
+const setSoundEffect = (game, soundEffect, time) => {
+  game.soundEffect = soundEffect;
+  setTimeout(() => {
+    const state = store.getState();
+    if (state.game && state.game.soundEffect == soundEffect) {
+      store.dispatch({type: 'SET', property: 'soundEffect', value: null});
+    }
+  }, time || 400);
+  return game;
+}
+
 module.exports = {
   initState,
   initGameState,
   initMoveAttempts,
+  setSoundEffect,
 };

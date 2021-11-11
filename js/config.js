@@ -17,9 +17,21 @@ const config = {
   ],
   openDoorCutoff: 2, // levels below this will start with doors closed
 
-  audioFiles: [
-    {path: require('../audio/timetravelmainmenu1.mp3'), type: 'mp3'},
+  menuAudioFiles: [
+    // {path: require('../audio/timetravelmainmenu1.mp3'), type: 'mp3'},
     {path: require('../audio/timetravelmainmenu1ext.mp3'), type: 'mp3'},
+  ],
+  gameAudioFiles: [
+    {path: require('../audio/timetravelingame3.mp3'), type: 'mp3'},
+    {path: require('../audio/timetravelingame1.mp3'), type: 'mp3'},
+    {path: require('../audio/timetravelingame2.mp3'), type: 'mp3'},
+  ],
+  effectAudioFiles: [
+    {name: 'RUMBLE', path: require('../audio/rumble1.mp3'), type: 'mp3'},
+    {name: 'REVERSE_TIME', path: require('../audio/reversetime1.mp3'), type: 'mp3'},
+  ],
+  lossAudioFiles: [
+
   ],
 
   font: 'Cochin',

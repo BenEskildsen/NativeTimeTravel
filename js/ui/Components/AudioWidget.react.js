@@ -60,15 +60,21 @@ const AudioWidget = (props) => {
     } else {
       audioPlayer.playAsync();
     }
-    return () => {
-      // audioPlayer.unloadAsync();
-    }
   }, [isMuted, props.audioFiles, audioPlayer, isLoaded]);
+
+  useEffect(() => {
+    return () => {
+      audioPlayer.unloadAsync();
+    }
+  }, []);
 
   // console.log("isMuted", isMuted, 'playIndex', playIndex, 'isLoaded', isLoaded);
 
   return (
     <View
+      style={{
+        display: props.hidden ? 'none' : 'initial',
+      }}
     >
       <Button
         style={props.style ? props.style : widgetStyle}

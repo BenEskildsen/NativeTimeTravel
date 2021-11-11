@@ -8,7 +8,7 @@ import Modal from '../ui/Components/Modal.react';
 import Button from '../ui/Components/Button.react';
 const {config} = require('../config');
 const {render} = require('../render/render');
-const {getLevel} = require('../state/levels');
+const {getLevel, allLevels} = require('../state/levels');
 const AsyncStorage = require('@react-native-async-storage/async-storage').default;
 
 /**
@@ -27,14 +27,17 @@ const initGameOverSystem = (store) => {
     if (game.paused) return;
 
     // handle game win conditions
-    if (false) {
-      handleGameWon(store, dispatch, state, 'win');
+    if (game.levelWon && game.level + 1 >= Object.keys(allLevels).length) {
+      dispatch({type: 'SET', property: 'paused', value: true});
+      handleGameWon(store, dispatch, state);
+      return;
     }
 
     // handle level won
     if (game.levelWon) {
       dispatch({type: 'SET', property: 'paused', value: true});
       handleLevelWon(store, dispatch, state);
+      return;
     }
 
     // LOSS CONDITIONS
@@ -50,9 +53,6 @@ const initGameOverSystem = (store) => {
     const noMoreSteps = game.time > game.stepLimit;
     if (noMoreSteps) reason = 'You ran out of steps!';
 
-    // TODO: each loss condition should queue an action to animate the paradox
-    // Then that action will have a large effectIndex that will flip a flag
-    // that THIS condition checks for
     if (noMovesLeft || noMoreSteps) {
       dispatch({type: 'SET', property: 'paused', value: true});
       handleGameLoss(store, dispatch, state, reason);
@@ -136,8 +136,55 @@ const handleGameLoss = (store, dispatch, state, reason): void => {
   const buttons = [resetButton, returnButton];
 
   const body = (
-    <View>
-      <Text style={{fontFamily: config.font}}>{reason}</Text>
+    <View
+      style={{
+        backgroundColor: 'black',
+        width: '100%',
+        height: '100%',
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        display: 'inline',
+      }}
+    >
+      <View
+        style={{
+          opacity: 0.6,
+          width: '100%',
+          height: '100%',
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          display: 'inline',
+          zIndex: -1,
+        }}
+      >
+        <Image
+          style={{
+            width: '100%',
+            height: '100%',
+          }}
+          source={require('../../assets/background3.png')}
+        />
+      </View>
+      <Text
+        style={{
+          fontFamily: config.font,
+          zIndex: 3,
+          fontWeight: '900',
+        }}
+      >
+        Game Over
+      </Text>
+      <View></View>
+      <Text
+        style={{
+          fontFamily: config.font,
+          zIndex: 3,
+        }}
+      >
+        {reason}
+      </Text>
     </View>
   );
 
@@ -153,19 +200,15 @@ const handleGameLoss = (store, dispatch, state, reason): void => {
       }
       body={body}
       buttons={buttons}
+      splash={true}
     />),
   });
 };
 
-const handleGameWon = (store, dispatch, state, reason): void => {
+const handleGameWon = (store, dispatch, state): void => {
   const {game} = state;
+  dispatch({type: 'CLEAR_CAMPAIGN'});
 
-  const contButton = {
-    label: 'Continue',
-    onClick: () => {
-      dispatch({type: 'DISMISS_MODAL'});
-    }
-  };
   const returnButton = {
     label: 'Back to Main Menu',
     onClick: () => {
@@ -181,16 +224,106 @@ const handleGameWon = (store, dispatch, state, reason): void => {
       render(store.getState().game); // HACK for level editor
     },
   };
-  const buttons = [contButton, returnButton];
-  if (state.screen == 'EDITOR') {
-    buttons.push(resetButton);
-  }
+  const buttons = [returnButton];
+
+  const body = (
+    <View
+      style={{
+        backgroundColor: 'black',
+        width: '100%',
+        height: '100%',
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        display: 'inline',
+      }}
+    >
+      <View
+        style={{
+          opacity: 0.6,
+          width: '100%',
+          height: '100%',
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          display: 'inline',
+          zIndex: -1,
+        }}
+      >
+        <Image
+          style={{
+            width: '100%',
+            height: '100%',
+          }}
+          source={require('../../assets/background2.png')}
+        />
+      </View>
+      <Text
+        style={{
+          fontFamily: config.font,
+          zIndex: 3,
+          fontWeight: '900',
+          color: 'white',
+        }}
+      >
+        You've Escaped! Game Won!
+      </Text>
+      <View></View>
+      <Text
+        style={{
+          color: 'white',
+          fontFamily: config.font,
+          zIndex: 3,
+        }}
+      >
+        Thank you for playing
+      </Text>
+      <View
+        style={{
+          textAlign: 'left',
+          marginLeft: 40,
+          marginTop: 40,
+        }}
+      >
+        <Text
+          style={{
+            color: 'white',
+            fontFamily: config.font,
+            zIndex: 3,
+          }}
+        >
+          Programming: Ben Eskildsen
+        </Text>
+        <View></View>
+        <Text
+          style={{
+            color: 'white',
+            fontFamily: config.font,
+            zIndex: 3,
+          }}
+        >
+          Art: Amanda Zuo
+        </Text>
+        <View></View>
+        <Text
+          style={{
+            color: 'white',
+            fontFamily: config.font,
+            zIndex: 3,
+          }}
+        >
+          Music: Ben Eskildsen
+        </Text>
+      </View>
+    </View>
+  );
 
   dispatch({type: 'SET_MODAL',
     modal: (<Modal
       title={'Level Won'}
-      body={'Level Won'}
+      body={body}
       buttons={buttons}
+      splash={true}
     />),
   });
 };

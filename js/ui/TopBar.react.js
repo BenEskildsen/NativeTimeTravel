@@ -2,6 +2,7 @@
 import React from 'react';
 import {Text, View, Dimensions} from 'react-native';
 import AudioWidget from './Components/AudioWidget.react';
+import SoundEffectWidget from './Components/SoundEffectWidget.react';
 import Button from './Components/Button.react';
 import Divider from './Components/Divider.react';
 import Modal from './Components/Modal.react';
@@ -17,6 +18,7 @@ function TopBar(props) {
     modal,
     isMuted,
     isTimeReversed,
+    soundEffect,
   } = props;
 
   const height = 100;
@@ -96,6 +98,7 @@ function ButtonStack(props) {
     isExperimental,
     modal,
     isMuted,
+    soundEffect,
   } = props;
 
   if (isExperimental) return null;
@@ -123,7 +126,7 @@ function ButtonStack(props) {
         />
       </View>
       <AudioWidget
-        audioFiles={config.audioFiles}
+        audioFiles={config.gameAudioFiles}
         isShuffled={false}
         isMuted={isMuted}
         setIsMuted={() => {
@@ -140,9 +143,17 @@ function ButtonStack(props) {
           }}
         />
       </View>
+      <SoundEffectWidget
+        audioFiles={config.effectAudioFiles}
+        playing={soundEffect}
+        hidden={true}
+        isMuted={isMuted}
+        style={{width: 125, marginBottom: 5}}
+      />
     </View>
   );
 }
+
 
 function instructionsModal(dispatch) {
   dispatch({

@@ -9,7 +9,7 @@ const {
 } = require('../selectors/selectors');
 const {filterObj, forEachObj, deepCopy} = require('../utils/helpers');
 const {Entities} = require('../entities/registry');
-const {initMoveAttempts} = require('../state/state');
+const {initMoveAttempts, setSoundEffect} = require('../state/state');
 
 const makeAction = (type, payload) => {
   return {
@@ -31,8 +31,8 @@ const doNextAction = (game, entity): Game => {
       return doReverseTime(game, entity);
     case 'STEP_TIME_BACKWARDS':
       return doStepTimeBackwards(game);
-    case 'GO_BACK_IN_TIME':
     case 'RUMBLE':
+    case 'GO_BACK_IN_TIME':
     case 'REACH_TARGET':
     case 'WAIT':
       return game;
@@ -40,7 +40,6 @@ const doNextAction = (game, entity): Game => {
       entity.facing = action.payload.facing;
       return game;
     case 'LEVEL_WON':
-      console.log("level won");
       game.levelWon = true;
       return game;
   }
@@ -93,6 +92,24 @@ const doStepTimeBackwards = (game): GameState => {
       });
     });
   }
+
+  // check for hitting a button on time reversal
+  if (nextTime == 0) {
+    forEachObj(game.AGENT, (agent) => {
+      forEachObj(game.BUTTON, (button) => {
+        const pos = agent.history[0];
+        if (equals(button.position, pos)) {
+          button.pressed = true;
+          forEachObj(game.DOOR, (door) => {
+            if (door.doorID === button.doorID) {
+              door.open = true;
+            }
+          });
+        }
+      });
+    });
+  }
+
   return {
     ...game,
     time: nextTime,
@@ -121,8 +138,8 @@ const doReverseTime = (game, entity): GameState => {
     }
   });
   if (cantGoBack) {
-    console.log("no reverse time");
-    entity.actionQueue.push(makeAction('RUMBLE'));
+    getPlayerAgent(game).actionQueue.push(makeAction('RUMBLE'));
+    setSoundEffect(game, 'RUMBLE');
     return {
       ...game,
       moveAttempts: {
@@ -144,7 +161,15 @@ const doReverseTime = (game, entity): GameState => {
     // do one additional wait for all agents to match with the go_back_in_time
     // agent.actionQueue.push(makeAction('WAIT'));
     let curPos = agent.history[game.time] || agent.history[agent.history.length - 1];
+    let setFacing = false
     for (let i = game.time - 1; i >= 0; i--) {
+      const nextPos = agent.history[i];
+      if (!setFacing) {
+        // need to set the agent facing the right way or else it will stay facing the
+        // direction it came from for the first time reversal for some reason
+        agent.facing = getMoveDirFromPositions(curPos, nextPos).key;
+        setFacing = true;
+      }
       if (i > agent.history.length - 1) {
         agent.actionQueue.push(makeAction('WAIT'));
         continue;
@@ -153,7 +178,6 @@ const doReverseTime = (game, entity): GameState => {
         agent.actionQueue.push(makeAction('GO_BACK_IN_TIME'));
         continue;
       }
-      const nextPos = agent.history[i];
       agent.actionQueue.push(makeAction('MOVE', getMoveDirFromPositions(curPos, nextPos)));
       curPos = nextPos;
     }
@@ -168,6 +192,7 @@ const doReverseTime = (game, entity): GameState => {
   } else {
     isTimeReversed = false;
   }
+  setSoundEffect(game, 'REVERSE_TIME', 500 * game.time + 600);
 
   return {
     ...game,
@@ -213,11 +238,11 @@ const doMove = (game: GameState, entity: Entity, action: MoveAction): GameState 
         );
     });
     if (Object.keys(collisions).length > 0) {
-      console.log("collides with other agent", collisions);
       cancelAction(game, entity);
       entity.actionQueue.push(makeAction('RUMBLE'));
       const otherEntity = collisions[Object.keys(collisions)[0]];
       otherEntity.actionQueue.push(makeAction('RUMBLE'));
+      setSoundEffect(game, 'RUMBLE');
       return {
         ...game,
         moveAttempts: {
@@ -228,9 +253,9 @@ const doMove = (game: GameState, entity: Entity, action: MoveAction): GameState 
     }
 
     if (hitsWall(game, curPos, nextPos)) {
-      console.log("hits wall");
       cancelAction(game, entity);
       entity.actionQueue.push(makeAction('RUMBLE'));
+      setSoundEffect(game, 'RUMBLE');
       return {
         ...game,
         moveAttempts: {
@@ -252,10 +277,10 @@ const doMove = (game: GameState, entity: Entity, action: MoveAction): GameState 
       }
     });
     if (stuck) {
-      console.log("other agent hits door");
       cancelAction(game, entity);
       entity.actionQueue.push(makeAction('RUMBLE'));
       otherAgent.actionQueue.push(makeAction('RUMBLE'));
+      setSoundEffect(game, 'RUMBLE');
       return {
         ...game,
         moveAttempts: {
@@ -268,7 +293,6 @@ const doMove = (game: GameState, entity: Entity, action: MoveAction): GameState 
 
   // update game
   if (!game.isTimeReversed && entity.id == playerAgent.id) {
-
     // check if reached target location
     const target = getTarget(game);
     if (target.reached == 0 && equals(nextPos, target.position)) {
@@ -329,7 +353,7 @@ const doMove = (game: GameState, entity: Entity, action: MoveAction): GameState 
   }
   const pressed = !game.isTimeReversed;
   forEachObj(game.BUTTON, (button) => {
-    if (pos.x === button.position.x && pos.y === button.position.y) {
+    if (equals(button.position, pos)) {
       button.pressed = pressed;
       forEachObj(game.DOOR, (door) => {
         if (door.doorID === button.doorID) {
