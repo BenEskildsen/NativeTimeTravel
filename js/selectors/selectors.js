@@ -14,7 +14,10 @@ const getPlayerAgent = (game) => {
   return null;
 };
 
-const hitsWall = (game, curPos: Coord, nextPos: Coord): boolean => {
+const hitsWall = (game, curPos: Coord, nextPos: Coord, shouldPrint): boolean => {
+  if (shouldPrint) {
+    console.log(curPos, nextPos);
+  }
   const wallCollisions = filterObj({...game.WALL, ...game.DOOR}, (wall) => {
     if (wall.open) {
       return false;
@@ -32,6 +35,9 @@ const hitsWall = (game, curPos: Coord, nextPos: Coord): boolean => {
     }
     return false;
   });
+  if (shouldPrint) {
+    console.log(wallCollisions);
+  }
   return Object.keys(wallCollisions).length > 0;
 }
 

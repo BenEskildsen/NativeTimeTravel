@@ -72,8 +72,8 @@ const getNumFrames = (game, entity) => {
 /////////////////////////////////////////////////////////////////////
 
 const getFloorSprite = (game: Game): Object => {
-  let width = 180;
-  let height = 172;
+  let width = 185;
+  let height = 182;
   const img = game.sprites.FLOOR;
   const obj = {
     img,

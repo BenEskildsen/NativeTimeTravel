@@ -104,7 +104,10 @@ const handleLevelWon = (store, dispatch, state): void => {
 
   dispatch({type: 'SET_MODAL',
     modal: (<Modal
-      title={<Text style={{color: 'white', fontWeight: '900'}}>Level Won</Text>}
+      title={<Text style={{
+        color: 'white', fontWeight: '900', fontSize: config.fontSize + 4,
+        textAlign: 'center',
+      }}>Level Won</Text>}
       body={body}
       buttons={[continueButton]}
       splash={true}
@@ -114,6 +117,7 @@ const handleLevelWon = (store, dispatch, state): void => {
 
 
 const handleGameLoss = (store, dispatch, state, reason): void => {
+  dispatch({type: 'SET', property: 'levelAudio', value: config.gameLossAudioFiles});
   const {game} = state;
 
   const returnButton = {
@@ -127,6 +131,7 @@ const handleGameLoss = (store, dispatch, state, reason): void => {
     label: 'Restart Level',
     onClick: () => {
       dispatch({type: 'DISMISS_MODAL'});
+      dispatch({type: 'SET', property: 'levelAudio', value: config.gameAudioFiles});
       dispatch({type: 'RESET_LEVEL'});
       if (state.screen == 'EDITOR') {
         render(store.getState().game); // HACK for level editor
@@ -170,8 +175,10 @@ const handleGameLoss = (store, dispatch, state, reason): void => {
       <Text
         style={{
           fontFamily: config.font,
+          fontSize: config.fontSize + 4,
           zIndex: 3,
           fontWeight: '900',
+          textAlign: 'center',
         }}
       >
         Game Over
@@ -180,7 +187,9 @@ const handleGameLoss = (store, dispatch, state, reason): void => {
       <Text
         style={{
           fontFamily: config.font,
+          fontSize: config.fontSize,
           zIndex: 3,
+          textAlign: 'center',
         }}
       >
         {reason}
@@ -261,9 +270,11 @@ const handleGameWon = (store, dispatch, state): void => {
       <Text
         style={{
           fontFamily: config.font,
+          fontSize: config.fontSize + 4,
           zIndex: 3,
           fontWeight: '900',
           color: 'white',
+          textAlign: 'center',
         }}
       >
         You've Escaped! Game Won!
@@ -273,7 +284,9 @@ const handleGameWon = (store, dispatch, state): void => {
         style={{
           color: 'white',
           fontFamily: config.font,
+          fontSize: config.fontSize,
           zIndex: 3,
+          textAlign: 'center',
         }}
       >
         Thank you for playing

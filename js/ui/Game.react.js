@@ -8,9 +8,11 @@ import initGameOverSystem from '../systems/gameOverSystem';
 const {initSpriteSheetSystem} = require('../systems/spriteSheetSystem');
 const {initKeyboardControlsSystem} = require('../systems/keyboardControlsSystem');
 const {initMouseControlsSystem} = require('../systems/mouseControlsSystem');
+const {config} = require('../config');
+const {add, equals} = require('../utils/vectors');
 const {useEffect, useState, useMemo, Component, memo} = React;
 const {
-  getPlayerAgent, getTarget, getDirFromKey
+  getPlayerAgent, getTarget, getDirFromKey, hitsWall,
 } = require('../selectors/selectors');
 const {makeAction} = require('../entities/actions');
 const {
@@ -69,6 +71,7 @@ function Game(props: Props): React.Node {
         numReversals={game.numReversals}
         level={game.level}
         soundEffect={game.soundEffect}
+        levelAudio={game.levelAudio}
       />
       <Controls
         dispatch={dispatch}
@@ -91,6 +94,7 @@ const Controls = (props) => {
           position: 'absolute',
           bottom: 70,
           left: 8,
+          zIndex: 3,
         }}
       >
         <Button
@@ -159,24 +163,33 @@ const RenderSprites = ({game}) => {
   const size = Dimensions.get('window').height / game.gridHeight;
 
   // FLOOR
-  const floorObj = getFloorSprite(game);
-  const floorWidth = 3;
-  const floorHeight = 2;
-  for (let x = 0; x < game.gridWidth; x += floorWidth) {
-    for (let y = 0; y < game.gridHeight; y += floorHeight) {
-      let width = x + floorWidth - game.gridWidth - 1;
-      if (width <= 0) width = floorWidth
-      let height = y + floorHeight - game.gridHeight - 1;
-      if (height <= 0) height = floorHeight
-      const grid = {x, y, width, height, size};
-       sprites.push(<Sprite
-         key={"floor_" + x + "_" + y}
-         src={require('../../assets/floorsheet1.png')}
-         sheet={{...floorObj, width: 2, height: 1, size:190}}
-         grid={grid}
-       />);
+  const floorSprites = useMemo(() => {
+    const toReturn = [];
+    const floorWidth = 1;
+    const floorHeight = 1;
+    for (let x = 0; x < game.gridWidth; x += floorWidth) {
+      for (let y = 0; y < game.gridHeight; y += floorHeight) {
+        let width = x + floorWidth - game.gridWidth - 1;
+        if (width <= 0) width = floorWidth
+        let height = y + floorHeight - game.gridHeight - 1;
+        if (height <= 0) height = floorHeight
+        if (x < 0 && (y % 2) == 0) continue;
+        const grid = {
+          x, y,
+          width, height,
+          size,
+        };
+        toReturn.push(<Sprite
+          key={"floor_" + x + "_" + y}
+          src={require('../../assets/floorsheet3.png')}
+          sheet={{x: 0, y: 0, width: 1, height: 1, size: size}}
+          grid={grid}
+        />);
+      }
     }
-  }
+    return toReturn;
+  }, [game.level]);
+  sprites.push(...floorSprites);
 
   // BUTTON
   for (const entityID in game.BUTTON) {
@@ -307,6 +320,18 @@ const RenderSprites = ({game}) => {
       grid={grid}
       sheet={sheet}
     />);
+    sprites.push(<View
+      key={"entityID_div" + entityID}
+      style={{
+        position: 'absolute',
+        top: grid.y * grid.size,
+        left: grid.x * grid.size,
+        width: grid.width * grid.size,
+        height: grid.height * grid.size,
+        backgroundColor: config.buttonColors[door.doorID],
+        opacity: 0.4,
+      }}
+    />);
   }
 
   // TARGET
@@ -332,6 +357,7 @@ const RenderSprites = ({game}) => {
   }
 
   // AGENT
+  let playerAgentInterPos = {x: 0, y: 0};
   for (const entityID in game.AGENT) {
     const agent = game.AGENT[entityID];
 
@@ -370,6 +396,9 @@ const RenderSprites = ({game}) => {
             interPosition.y += dir.y * interp - 1;
           }
         }
+        if (agent.isPlayerAgent) {
+          playerAgentInterPos = interPosition;
+        }
       } else if (curAction.type == 'GO_BACK_IN_TIME' || curAction.type == 'REACH_TARGET') {
         const interp = 1 - animation.tick / animation.duration;
         key = ['left', 'up', 'right', 'down'][Math.max(0, Math.round(interp * 4 - 1))];
@@ -400,19 +429,73 @@ const RenderSprites = ({game}) => {
     let y = frame.y;
     let style = !agent.isPlayerAgent ? null :
       {
-        boxShadow: '0 0 0 5000px rgba(0, 0, 0, 0.25)',
-        borderRadius: '50%',
+        // boxShadow: '0 0 0 5000px rgba(0, 0, 0, 0.25)',
+        // shadowColor: 'black',
+        // shadowOpacity: 1,
+        // shadowRadius: 50000,
+        // shadowOffset: {width: 0, height: 0},
+        // borderRadius: '100%',
+        // backgroundColor: 'rgba(200, 200, 200, 1)',
+        // opacity: 0.5
       };
 
     sprites.push(<Sprite
       style={style}
       key={"entityID_" + entityID}
-      src={require('../../assets/characterSheet1.png')}
+      src={require('../../assets/characterSheet3.png')}
       grid={{...interPosition, width: 1, height: 1, size}}
       sheet={{x, y, width: 5, height: 4, size}}
       opacity={opacity}
+      useLarge={agent.isPlayerAgent}
     />);
   }
+
+
+  // darken squares
+  const playerPos = getPlayerAgent(game).history[game.time];
+  const darkenSprites = useMemo(() => {
+    const toReturn = [];
+    const darkenGrid = [];
+    for (let x = 0; x < game.gridWidth; x++) {
+      const darkenRow = [];
+      for (let y = 0; y < game.gridHeight; y++) {
+        darkenRow.push(true);
+      }
+      darkenGrid.push(darkenRow);
+    }
+    for (let x = 0; x < game.gridWidth; x++) {
+      for (let y = 0; y < game.gridHeight; y++) {
+        if (equals(playerPos, {x, y})) {
+          darkenGrid[x][y] = false;
+          const dirs = [{x:0,y:1},{x:0,y:-1},{x:1,y:0},{x:-1,y:0}];
+          for (let i = 0; i < 4; i++) {
+            const pos = add(playerPos, dirs[i]);
+            if (!hitsWall(game, playerPos, pos)) {
+              darkenGrid[pos.x][pos.y] = false;
+            }
+          }
+        }
+      }
+    }
+    for (let x = 0; x < game.gridWidth; x++) {
+      for (let y = 0; y < game.gridHeight; y++) {
+        if (!darkenGrid[x][y]) continue;
+        toReturn.push(<View
+          key={'darken_' + x + '_' + y}
+          style={{
+            width: size, height: size,
+            position: 'absolute',
+            top: y * size,
+            left: x * size,
+            backgroundColor: 'black',
+            opacity: 0.3,
+          }}
+        />);
+      }
+    }
+    return toReturn;
+  }, [playerPos.x, playerPos.y]);
+  sprites.push(...darkenSprites);
 
 
   const width = Dimensions.get('window').width;
@@ -424,6 +507,8 @@ const RenderSprites = ({game}) => {
         height,
         marginLeft: (width - height) / 2,
         position: 'relative',
+        backgroundColor: 'rgb(136, 118, 99)',
+        zIndex: 0,
       }}
     >
       {sprites}
@@ -432,19 +517,23 @@ const RenderSprites = ({game}) => {
 };
 
 const Sprite = (props) => {
-  const {src, grid, sheet, style} = props;
+  const {src, grid, sheet, style, useLarge} = props;
   const imgStyle = style ? style : {};
 
+  // const multiplier = props.useLarge ? 3 : 1;
+  // const offset = props.useLarge ? -1 : 0;
+  const multiplier = 3;
+  const offset = -1;
   return (
     <View
       style={{
         position: 'absolute',
-        top: (grid.y - 1) * grid.size,
-        left: (grid.x - 1)* grid.size,
+        top: (grid.y + offset) * grid.size,
+        left: (grid.x + offset)* grid.size,
         padding: grid.size,
         ...imgStyle,
-        width: grid.width * grid.size * 3,
-        height: grid.height * grid.size * 3,
+        width: grid.width * grid.size * multiplier,
+        height: grid.height * grid.size * multiplier,
       }}
     >
       <View

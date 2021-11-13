@@ -1,4 +1,5 @@
 // @flow
+const {config} = require('../config');
 
 const initState = () => {
   return {
@@ -42,6 +43,7 @@ const initGameState = () => {
       prevPixel: {x: 0, y: 0},
     },
     sprites: {},
+    levelAudio: config.gameAudioFiles,
 
     level: 0,
     stepLimit: 10,

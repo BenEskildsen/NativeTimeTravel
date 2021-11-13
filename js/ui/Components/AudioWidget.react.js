@@ -21,19 +21,7 @@ const AudioWidget = (props) => {
   const [playIndex, setPlayIndex] = useState(0);
   const [isLoaded, setIsLoaded] = useState(false);
 
-  const playOrder = useMemo(() => {
-    let initialOrder = props.audioFiles.map((a,i) => i);
-    if (props.isShuffled) {
-      // TODO: shuffle the playOrder array
-    }
-    return initialOrder;
-  }, [props.audioFiles]);
-
-  let widgetStyle = {
-    margin: 5,
-    borderRadius: 8,
-    left: 5,
-  };
+  // TODO: shuffle the playOrder array
 
   // player
   const audioPlayer = useMemo(() => {
@@ -55,21 +43,40 @@ const AudioWidget = (props) => {
   // handling mute toggle as well as loading new files
   useEffect(() => {
     if (!isLoaded || !audioPlayer) return;
-    if (isMuted) {
-      audioPlayer.pauseAsync();
-    } else {
-      audioPlayer.playAsync();
+    try {
+      if (isMuted) {
+        audioPlayer.pauseAsync().catch(() => {});
+      } else {
+        audioPlayer.playAsync().catch(() => {});
+      }
+    } catch (e) {
+      console.log(e);
     }
   }, [isMuted, props.audioFiles, audioPlayer, isLoaded]);
 
+  // component unmount
   useEffect(() => {
-    return () => {
-      audioPlayer.unloadAsync();
+    if (isLoaded) {
+      return () => {
+        audioPlayer.unloadAsync().catch(() => {});
+      }
     }
   }, []);
 
-  // console.log("isMuted", isMuted, 'playIndex', playIndex, 'isLoaded', isLoaded);
+  // also unload when audio files switch
+  useEffect(() => {
+    if (isLoaded) {
+      return () => {
+        audioPlayer.unloadAsync().catch(() => {});
+      }
+    }
+  }, [props.audioFiles]);
 
+  let widgetStyle = {
+    margin: 5,
+    borderRadius: 8,
+    left: 5,
+  };
   return (
     <View
       style={{

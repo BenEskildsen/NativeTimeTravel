@@ -66,7 +66,7 @@ function Modal(props: Props): React.Node {
     }
   }
   bodyHTML = splash ? bodyHTML :
-    (<Text style={{fontFamily: config.font}}>{bodyHTML}</Text>);
+    (<Text style={{fontFamily: config.font, fontSize: config.fontSize}}>{bodyHTML}</Text>);
 
   return (
     <View
@@ -74,7 +74,7 @@ function Modal(props: Props): React.Node {
         position: 'absolute',
         backgroundColor: 'whitesmoke',
         border: '1px solid black',
-        padding: 4,
+        padding: splash ? 0 : 4,
         boxShadow: '2px 2px #666666',
         borderRadius: 3,
         color: '#46403a',
@@ -86,12 +86,12 @@ function Modal(props: Props): React.Node {
         zIndex: 10,
       }}
     >
-      <Text style={{fontFamily: config.font}}>{title}</Text>
+      <Text style={{fontFamily: config.font, fontSize: config.fontSize + 4}}>{title}</Text>
       {bodyHTML}
       <View
         style={splash ? {
           position: 'absolute',
-          bottom: '4px'
+          bottom: 4,
         } : {}}
       >
         {buttonHTML}

@@ -59,8 +59,10 @@ const SoundEffectWidget = (props) => {
   // component unmount
   useEffect(() => {
     return () => {
-      for (const title in tracks) {
-        tracks[title].unloadAsync();
+      if (isLoaded) {
+        for (const title in tracks) {
+          tracks[title].unloadAsync().catch(() => {});
+        }
       }
     }
   }, []);

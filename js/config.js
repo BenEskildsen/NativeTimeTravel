@@ -22,19 +22,19 @@ const config = {
     {path: require('../audio/timetravelmainmenu1ext.mp3'), type: 'mp3'},
   ],
   gameAudioFiles: [
-    {path: require('../audio/timetravelingame3.mp3'), type: 'mp3'},
-    {path: require('../audio/timetravelingame1.mp3'), type: 'mp3'},
-    {path: require('../audio/timetravelingame2.mp3'), type: 'mp3'},
+    {name: 'GAME_1', path: require('../audio/timetravelingame3.mp3'), type: 'mp3'},
+    {name: 'GAME_2', path: require('../audio/timetravelingame2.mp3'), type: 'mp3'},
+  ],
+  gameLossAudioFiles: [
+    {name: 'LOSS_1', path: require('../audio/timetravelingame1.mp3'), type: 'mp3'},
   ],
   effectAudioFiles: [
     {name: 'RUMBLE', path: require('../audio/rumble1.mp3'), type: 'mp3'},
     {name: 'REVERSE_TIME', path: require('../audio/reversetime1.mp3'), type: 'mp3'},
   ],
-  lossAudioFiles: [
-
-  ],
 
   font: 'Cochin',
+  fontSize: 18,
   // font: 'Copperplate',
 };
 

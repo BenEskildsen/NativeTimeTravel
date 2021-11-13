@@ -99,6 +99,7 @@ function ButtonStack(props) {
     modal,
     isMuted,
     soundEffect,
+    levelAudio,
   } = props;
 
   if (isExperimental) return null;
@@ -126,7 +127,7 @@ function ButtonStack(props) {
         />
       </View>
       <AudioWidget
-        audioFiles={config.gameAudioFiles}
+        audioFiles={levelAudio}
         isShuffled={false}
         isMuted={isMuted}
         setIsMuted={() => {
