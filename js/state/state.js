@@ -44,6 +44,7 @@ const initGameState = () => {
     },
     sprites: {},
     levelAudio: config.gameAudioFiles,
+    lightning: 0,
 
     level: 0,
     stepLimit: 10,

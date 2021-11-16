@@ -6,6 +6,7 @@ import Button from './Components/Button.react';
 import TopBar from './TopBar.react';
 import initGameOverSystem from '../systems/gameOverSystem';
 const {initSpriteSheetSystem} = require('../systems/spriteSheetSystem');
+const {initLightningSystem} = require('../systems/lightningSystem');
 const {initKeyboardControlsSystem} = require('../systems/keyboardControlsSystem');
 const {initMouseControlsSystem} = require('../systems/mouseControlsSystem');
 const {config} = require('../config');
@@ -45,6 +46,7 @@ function Game(props: Props): React.Node {
     //   );
     // }
     initGameOverSystem(store);
+    // initLightningSystem(store);
     // registerHotkeys(dispatch);
   }, [gameID]);
 
@@ -338,8 +340,8 @@ const RenderSprites = ({game}) => {
   for (const entityID in game.TARGET) {
     const target = game.TARGET[entityID];
     const sheet = {
-      x: 1, y: 0,
-      width: 3, height: 1,
+      x: 0, y: 0,
+      width: 1, height: 1,
       size,
     };
     const grid = {
@@ -350,7 +352,7 @@ const RenderSprites = ({game}) => {
 
     sprites.push(<Sprite
       key={"entityID_" + entityID}
-      src={require('../../assets/exclamations1.png')}
+      src={require('../../assets/target4.png')}
       grid={grid}
       sheet={sheet}
     />);
@@ -455,6 +457,7 @@ const RenderSprites = ({game}) => {
   const playerPos = getPlayerAgent(game).history[game.time];
   const darkenSprites = useMemo(() => {
     const toReturn = [];
+    if (game.lightning % 2 == 1) return toReturn;
     const darkenGrid = [];
     for (let x = 0; x < game.gridWidth; x++) {
       const darkenRow = [];
@@ -494,7 +497,7 @@ const RenderSprites = ({game}) => {
       }
     }
     return toReturn;
-  }, [playerPos.x, playerPos.y]);
+  }, [playerPos.x, playerPos.y, game.lightning]);
   sprites.push(...darkenSprites);
 
 
