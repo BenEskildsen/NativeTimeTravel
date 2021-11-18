@@ -57,32 +57,7 @@ const Lobby = (props) => {
         marginLeft: 45,
       }}
     >
-      <View>
-      <Button
-        style={{width: 200, marginBottom: 5}}
-        label={"Start " + (levelNum == 0 ? '' : 'Level ' + (levelNum + 1))}
-        onClick={() => {
-          dispatch({
-            type: 'SET_MODAL',
-            modal: (<Modal
-              title={<Text style={{fontWeight: '900'}}>The Clock That Went Backwards</Text>}
-              body={'... How did I get in this strange mansion?' +
-                ' ... WHEN did I get here? ... And how do I get out?'
-              }
-              typewriter={true}
-              buttons={[{
-                label: 'Continue...',
-                onClick: () => {
-                  dispatch({type: 'DISMISS_MODAL'});
-                  dispatch({type: 'SET_LEVEL', level: getLevel(levelNum)});
-                  dispatch({type: 'SET_SCREEN', screen: 'GAME'});
-                },
-              }]}
-            />)
-          });
-        }}
-      />
-      </View>
+        <StartButton levelNum={levelNum} dispatch={dispatch} />
       {levelNum == 0 ? null : resetButton}
       <AudioWidget
         audioFiles={config.menuAudioFiles}
@@ -116,5 +91,42 @@ const Lobby = (props) => {
     </View>
   </View>);
 };
+
+const StartButton = (props) => {
+  const {levelNum, dispatch} = props;
+
+  let modalBody = '... How did I get in this strange mansion?'
+    + ' ... WHEN did I get here? ... And how do I get out?';
+  if (levelNum > 0) {
+    modalBody = '... I continue my journey ...';
+  }
+
+  return (
+    <View>
+      <Button
+        style={{width: 200, marginBottom: 5}}
+        label={"Start " + (levelNum == 0 ? '' : 'Level ' + (levelNum + 1))}
+        onClick={() => {
+          dispatch({
+            type: 'SET_MODAL',
+            modal: (<Modal
+              title={<Text style={{fontWeight: '900'}}>The Clock That Went Backwards</Text>}
+              body={modalBody}
+              typewriter={true}
+              buttons={[{
+                label: 'Continue...',
+                onClick: () => {
+                  dispatch({type: 'DISMISS_MODAL'});
+                  dispatch({type: 'SET_LEVEL', level: getLevel(levelNum)});
+                  dispatch({type: 'SET_SCREEN', screen: 'GAME'});
+                },
+              }]}
+            />)
+          });
+        }}
+      />
+    </View>
+  );
+}
 
 export default Lobby;

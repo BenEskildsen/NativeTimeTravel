@@ -31,7 +31,7 @@ function Modal(props: Props): React.Node {
   let width = props.width ? props.width : Math.min(rect.width * 0.8, 350);
   width = splash ? rect.width : width;
 
-  const buttonHTML = buttons.map(b => {
+  let buttonHTML = buttons.map(b => {
     return (<Button
       key={"b_" + b.label}
       disabled={!!b.disabled}
@@ -65,6 +65,10 @@ function Modal(props: Props): React.Node {
       );
     }
   }
+  if (typewriter && bodyIndex < body.length) {
+    buttonHTML = null;
+  }
+
   bodyHTML = splash ? bodyHTML :
     (<Text style={{fontFamily: config.font, fontSize: config.fontSize}}>{bodyHTML}</Text>);
 

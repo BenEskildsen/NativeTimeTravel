@@ -4,7 +4,7 @@
     "slug": "timetravel",
     "version": "1.0.0",
     "orientation": "landscape",
-    "icon": "./assets/favicon.png",
+    "icon": "./assets/nontransparent_favicon.png",
     "splash": {
       "image": "./assets/background1.png",
       "resizeMode": "contain",

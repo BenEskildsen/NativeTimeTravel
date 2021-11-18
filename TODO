@@ -1,0 +1,45 @@
+
+- - - - - - - - TODO - - - - - - - -
+  - fix music not stopping when you quit to main menu
+
+- - - - - - - - FIX - - - - - - - -
+
+- - - - - - - - LEVELS - - - - - - - -
+  - each level should start where the previous one ended
+  - first levels where you need to reverse time on reaching
+    the target should have a modal for it
+  - disable time travel on the levels that don't require it
+    (can just be via uncommenting code to prevent time travel
+     before you reach the target)
+  - modal explaining why you can't go back in time somewhere
+    you already started
+
+- - - - - - - - RENDERING - - - - - - - -
+  - time travel animation
+  - gates of each color
+  - staircase
+  - splash screens:
+    - level won
+    - level lost
+
+- - - - - - - - SOUNDS - - - - - - - -
+  - door opening
+  - level finish
+  - sound on by default
+
+- - - - - - - NICE TO HAVE - - - - - - -
+  - lightning
+  - what to show in empty space in the levels
+
+- - - - - - - - UI - - - - - - - -
+
+- - - - - - - - MOVEMENT - - - - - - - -
+
+- - - - - - - - REACT NATIVE - - - - - - - -
+  - figure out how to turn into standalone app
+    - app icon can't have transparency
+    - need app-specific password
+    - go in to application loader to get .ipa file
+      onto apple's site
+
+- - - - - - - - LEVEL EDITOR  - - - - - - - -
